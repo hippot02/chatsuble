@@ -1,9 +1,12 @@
+import 'package:chatsuble/chat/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'signin_page.dart';
 
 // Classe représentant la page de connexion
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -35,10 +38,7 @@ class _LoginPageState extends State<LoginPage> {
       // Navigation vers la page suivante après une connexion réussie
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          // builder: (context) => LoggedPage(
-          //   userEmail: userCredential.user?.email ?? '',
-          // ),
-          builder: (context) => LoginPage(),
+          builder: (context) => const HomePage(),
         ),
       );
     } on FirebaseAuthException catch (e) {
