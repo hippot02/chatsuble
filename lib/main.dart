@@ -14,7 +14,7 @@ void main() async {
   );
 
   // Lance l'application en créant une instance de MyApp
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 // Classe principale représentant l'application Flutter
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // Page d'accueil de l'application, dans ce cas, la page de connexion
-      home: LoginPage(),
+      home: const LoginPage(),
       debugShowCheckedModeBanner: false,
     );
   }
