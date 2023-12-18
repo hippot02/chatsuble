@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:chatsuble/navbar/navbar.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -10,7 +9,6 @@ class ProfilePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      bottomNavigationBar: MyBottomNavigationBar(),
     );
   }
 }
