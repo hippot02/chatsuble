@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'login_page.dart';
@@ -68,10 +69,19 @@ class _AuthPageState extends State<AuthPage> {
         return;
       }
       // Tentative de création d'un nouvel utilisateur avec l'e-mail et le mot de passe fournis
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
+
+      // Récupération de l'ID utilisateur
+      String userId = userCredential.user!.uid;
+
+      // Enregistrement des informations supplémentaires dans Firestore
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
+        'distance': 50, // Valeur par défaut
+      });
 
       // Affichage d'un message de réussite à l'aide d'un Snackbar
       ScaffoldMessenger.of(context).showSnackBar(

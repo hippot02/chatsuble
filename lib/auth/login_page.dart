@@ -1,6 +1,7 @@
 import 'package:chatsuble/chat/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'signin_page.dart';
 
 // Classe représentant la page de connexion
@@ -21,6 +22,19 @@ class _LoginPageState extends State<LoginPage> {
   // Méthode de connexion de l'utilisateur
   void _login() async {
     try {
+      // Demander l'autorisation d'accéder à la position de l'utilisateur
+      var status = await Permission.location.request();
+      if (status.isDenied) {
+        // L'utilisateur a refusé l'autorisation
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+                'L\'accès à la position est nécessaire pour l\'application.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
       // Tentative de connexion de l'utilisateur avec l'e-mail et le mot de passe fournis
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text,
