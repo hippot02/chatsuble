@@ -3,32 +3,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
 class StatefulDialogButton extends StatefulWidget {
-  const StatefulDialogButton({Key? key}) : super(key: key);
+  const StatefulDialogButton({super.key});
 
   @override
   State<StatefulDialogButton> createState() => _StatefulDialogButtonState();
 }
 
 class _StatefulDialogButtonState extends State<StatefulDialogButton> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CollectionReference _messagesCollection =
+  final _formKey = GlobalKey<FormState>();
+
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final CollectionReference messagesCollection =
       FirebaseFirestore.instance.collection('messages');
 
-  final TextEditingController _messageController = TextEditingController();
-
-  // Liste d'options pour le thème
-  final List<String> _themeOptions = [
-    'Monstre',
-    'Feur',
-    'Chipi Chipi Chapa Chapa Dubi Dubi Daba Daba',
-    'Cyprien',
-    'La grosse de Yvelin'
-  ];
-  String _selectedTheme = 'Monstre'; // Thème par défaut
+  final _themeController = TextEditingController();
+  final _messageController = TextEditingController();
 
   @override
   void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    _themeController.dispose();
     _messageController.dispose();
     super.dispose();
   }
@@ -58,8 +53,9 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
   void addMessage() async {
     try {
       Position userPosition = await getUserLocation();
-      await _messagesCollection.add({
-        'theme': _selectedTheme,
+
+      await messagesCollection.add({
+        'theme': _themeController.text,
         'text': _messageController.text,
         'timestamp': DateTime.now(),
         'latitude': userPosition.latitude,
@@ -76,65 +72,65 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
     return ElevatedButton(
       onPressed: () async {
         await showDialog<void>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Nouveau Message'),
-            content: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  // Utilisez DropdownButtonFormField pour le thème
-                  DropdownButtonFormField<String>(
-                    value: _selectedTheme,
-                    items: _themeOptions.map((String theme) {
-                      return DropdownMenuItem<String>(
-                        value: theme,
-                        child: Text(theme),
-                      );
-                    }).toList(),
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedTheme = value!;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Thème',
-                      icon: Icon(Icons.theater_comedy),
-                    ),
+            context: context,
+            builder: (context) => AlertDialog(
+                  content: Stack(
+                    clipBehavior: Clip.none,
+                    children: <Widget>[
+                      Positioned(
+                        right: -40,
+                        top: -40,
+                        child: InkResponse(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const CircleAvatar(
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.close),
+                          ),
+                        ),
+                      ),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            TextFormField(
+                              controller: _themeController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(
+                                    Icons.theater_comedy,
+                                  ),
+                                  hintText: "Thème",
+                                  labelText: "Thème"),
+                            ),
+                            TextFormField(
+                              controller: _messageController,
+                              decoration: const InputDecoration(
+                                  icon: Icon(
+                                    Icons.message,
+                                  ),
+                                  hintText: "Message",
+                                  labelText: "Message"),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: ElevatedButton(
+                                child: const Text('Envoyer'),
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    _formKey.currentState!.save();
+                                    addMessage();
+                                  }
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  TextFormField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.message),
-                      hintText: 'Message',
-                      labelText: 'Message',
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Veuillez entrer un message';
-                      }
-                      return null;
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: ElevatedButton(
-                      child: const Text('Envoyer'),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          addMessage();
-                          Navigator.of(context).pop();
-                        }
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        );
+                ));
       },
       child: const Icon(Icons.add),
     );
