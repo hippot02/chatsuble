@@ -1,4 +1,5 @@
 import 'package:chatsuble/profile/widgets/_distance_slider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,24 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     user = FirebaseAuth.instance.currentUser!;
+    _getDistance();
+  }
+
+  void _getDistance() async {
+    try {
+      var userDoc =
+          FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+      var userData = await userDoc.get();
+
+      if (userData.exists) {
+        setState(() {
+          distance = userData['distance'] ?? 50;
+        });
+      }
+    } catch (e) {
+      print('Erreur lors de la récupération de la distance : $e');
+    }
   }
 
   @override
