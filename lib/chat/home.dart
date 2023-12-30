@@ -15,6 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String _selectedTheme = 'Tous les thèmes'; // Thème par défaut
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,26 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      floatingActionButton: const StatefulDialogButton(),
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.teal,
+        unselectedItemColor: Colors.grey,
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+        ],
+      ),
     );
   }
 
