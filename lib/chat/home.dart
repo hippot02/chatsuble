@@ -5,6 +5,7 @@ import 'package:chatsuble/chat/widgets/filter/filter_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chatsuble/profile/profile_page.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -107,10 +108,13 @@ class HomePageContent extends StatelessWidget {
                         final DateTime messageTime =
                             (data['timestamp'] as Timestamp).toDate();
 
+                        final formattedDate =
+                            DateFormat('dd/MM/yyyy HH:mm').format(messageTime);
+
                         return MyListTile(
                           theme: messageTheme,
                           text: messageText,
-                          date: messageTime.toString(),
+                          date: formattedDate,
                         );
                       },
                     );
@@ -130,8 +134,16 @@ class HomePageContent extends StatelessWidget {
         FirebaseFirestore.instance.collection('messages');
 
     final QuerySnapshot snapshot = await messagesCollection.get();
-    return snapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+    List<Map<String, dynamic>> messages =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+    messages.sort((a, b) {
+      final DateTime dateTimeA = (a['timestamp'] as Timestamp).toDate();
+      final DateTime dateTimeB = (b['timestamp'] as Timestamp).toDate();
+
+      return dateTimeB.compareTo(dateTimeA);
+    });
+
+    return messages;
   }
 }

@@ -20,9 +20,12 @@ class _FilterThemeDialogState extends State<FilterThemeDialog> {
   Widget build(BuildContext context) {
     final List<String> themes = [
       'Tous les thèmes',
-      'Monstre',
-      'Feur',
-      'Chipi Chipi Chapa Chapa Dubi Dubi Daba Daba',
+      'Étude',
+      'Food',
+      'Jeux Vidéo',
+      'Cinéma',
+      'Sport',
+      'Autre'
     ];
 
     return DropdownButton<String>(

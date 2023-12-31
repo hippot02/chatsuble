@@ -16,14 +16,40 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
   final CollectionReference messagesCollection =
       FirebaseFirestore.instance.collection('messages');
 
-  final _themeController = TextEditingController();
   final _messageController = TextEditingController();
+
+  // Liste des thèmes prédéfinis
+  final List<String> themes = [
+    'Étude',
+    'Food',
+    'Jeux Vidéo',
+    'Cinéma',
+    'Sport',
+    'Autre'
+  ];
+  String selectedTheme = 'Étude'; // Thème par défaut
+
+  Color getThemeColor(String theme) {
+    switch (theme) {
+      case 'Étude':
+        return Colors.blue;
+      case 'Food':
+        return Colors.green;
+      case 'Jeux Vidéo':
+        return Colors.orange;
+      case 'Cinéma':
+        return Colors.deepPurple;
+      case 'Sport':
+        return Colors.yellow;
+      case 'Autre':
+        return Colors.teal;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
-    _themeController.dispose();
     _messageController.dispose();
     super.dispose();
   }
@@ -55,13 +81,15 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
       Position userPosition = await getUserLocation();
 
       await messagesCollection.add({
-        'theme': _themeController.text,
+        'theme': selectedTheme,
         'text': _messageController.text,
         'timestamp': DateTime.now(),
         'latitude': userPosition.latitude,
         'longitude': userPosition.longitude,
       });
       print('Message ajouté avec succès à Firestore!');
+      Navigator.of(context)
+          .pop(true); // Ferme la fenêtre de dialogue avec une valeur true
     } catch (e) {
       print('Erreur lors de l\'ajout du message: $e');
     }
@@ -71,66 +99,91 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        await showDialog<void>(
-            context: context,
-            builder: (context) => AlertDialog(
-                  content: Stack(
-                    clipBehavior: Clip.none,
+        bool? result = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Stack(
+              clipBehavior: Clip.none,
+              children: <Widget>[
+                Positioned(
+                  right: -40,
+                  top: -40,
+                  child: InkResponse(
+                    onTap: () {
+                      Navigator.of(context).pop(
+                          false); // Ferme la fenêtre de dialogue avec une valeur false
+                    },
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.close),
+                    ),
+                  ),
+                ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Positioned(
-                        right: -40,
-                        top: -40,
-                        child: InkResponse(
-                          onTap: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const CircleAvatar(
-                            backgroundColor: Colors.red,
-                            child: Icon(Icons.close),
-                          ),
+                      DropdownButtonFormField<String>(
+                        value: selectedTheme,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedTheme = newValue!;
+                          });
+                        },
+                        items: themes
+                            .map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  backgroundColor: getThemeColor(value),
+                                  radius: 10,
+                                ),
+                                SizedBox(width: 8),
+                                Text(value),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.theater_comedy),
+                          labelText: "Thème",
                         ),
                       ),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            TextFormField(
-                              controller: _themeController,
-                              decoration: const InputDecoration(
-                                  icon: Icon(
-                                    Icons.theater_comedy,
-                                  ),
-                                  hintText: "Thème",
-                                  labelText: "Thème"),
-                            ),
-                            TextFormField(
-                              controller: _messageController,
-                              decoration: const InputDecoration(
-                                  icon: Icon(
-                                    Icons.message,
-                                  ),
-                                  hintText: "Message",
-                                  labelText: "Message"),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: ElevatedButton(
-                                child: const Text('Envoyer'),
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    _formKey.currentState!.save();
-                                    addMessage();
-                                  }
-                                },
-                              ),
-                            )
-                          ],
+                      TextFormField(
+                        controller: _messageController,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.message),
+                          hintText: "Message",
+                          labelText: "Message",
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: ElevatedButton(
+                          child: const Text('Envoyer'),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                              addMessage();
+                            }
+                          },
                         ),
                       ),
                     ],
                   ),
-                ));
+                ),
+              ],
+            ),
+          ),
+        );
+
+        if (result != null && result) {
+          // Si la fenêtre de dialogue est fermée avec une valeur true, rafraîchissez la liste des messages
+          // Mettez ici votre logique de rafraîchissement
+        }
       },
       child: const Icon(Icons.add),
     );

@@ -14,12 +14,18 @@ class MyListTile extends StatelessWidget {
 
   Color getThemeColor(String theme) {
     switch (theme) {
-      case 'Monstre':
+      case 'Étude':
         return Colors.blue;
-      case 'Feur':
+      case 'Food':
         return Colors.green;
-      case 'Chipi Chipi Chapa Chapa Dubi Dubi Daba Daba':
+      case 'Jeux Vidéo':
         return Colors.orange;
+      case 'Cinéma':
+        return Colors.deepPurple;
+      case 'Sport':
+        return Colors.yellow;
+      case 'Autre':
+        return Colors.teal;
       default:
         return Colors.grey;
     }
