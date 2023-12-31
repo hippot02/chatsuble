@@ -1,10 +1,12 @@
 import 'package:chatsuble/chat/widgets/_list_tile.dart';
 import 'package:chatsuble/chat/widgets/_stateful_dialog_button.dart';
+import 'package:chatsuble/chat/widgets/distance_calculator.dart';
 import 'package:chatsuble/chat/widgets/filter/_filter_dialog.dart';
 import 'package:chatsuble/chat/widgets/filter/filter_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chatsuble/profile/profile_page.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
@@ -130,20 +132,69 @@ class HomePageContent extends StatelessWidget {
   }
 
   Future<List<Map<String, dynamic>>> _getMessages() async {
-    final CollectionReference messagesCollection =
-        FirebaseFirestore.instance.collection('messages');
+    try {
+      final CollectionReference messagesCollection =
+          FirebaseFirestore.instance.collection('messages');
 
-    final QuerySnapshot snapshot = await messagesCollection.get();
-    List<Map<String, dynamic>> messages =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      final QuerySnapshot snapshot = await messagesCollection.get();
+      List<Map<String, dynamic>> messages = snapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
 
-    messages.sort((a, b) {
-      final DateTime dateTimeA = (a['timestamp'] as Timestamp).toDate();
-      final DateTime dateTimeB = (b['timestamp'] as Timestamp).toDate();
+      messages.sort((a, b) {
+        final DateTime dateTimeA = (a['timestamp'] as Timestamp).toDate();
+        final DateTime dateTimeB = (b['timestamp'] as Timestamp).toDate();
 
-      return dateTimeB.compareTo(dateTimeA);
-    });
+        return dateTimeB.compareTo(dateTimeA);
+      });
 
-    return messages;
+      Position userLocation = await _getUserLocation();
+      //double userDistance = await _getUserDistance();
+
+      messages = messages.where((message) {
+        if (message.containsKey('latitude') &&
+            message.containsKey('longitude')) {
+          double messageLat = message['latitude'] as double;
+          double messageLon = message['longitude'] as double;
+
+          double distance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            messageLat,
+            messageLon,
+          );
+          return distance <= 10;
+        } else {
+          return false;
+        }
+      }).toList();
+
+      return messages;
+    } catch (e) {
+      print('Erreur lors de la récupération des messages: $e');
+      return [];
+    }
+  }
+
+  Future<Position> _getUserLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      return position;
+    } catch (e) {
+      print(e);
+      return Position(
+        latitude: 0,
+        longitude: 0,
+        accuracy: 0,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0,
+        timestamp: DateTime.now(),
+        altitudeAccuracy: 0,
+        headingAccuracy: 0,
+      );
+    }
   }
 }
