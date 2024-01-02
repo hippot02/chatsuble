@@ -143,7 +143,7 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
                                   backgroundColor: getThemeColor(value),
                                   radius: 10,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(value),
                               ],
                             ),

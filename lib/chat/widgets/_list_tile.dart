@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MyListTile extends StatelessWidget {
@@ -69,7 +68,7 @@ class MyListTile extends StatelessWidget {
         subtitle: Text('Envoyé le $date',
             style: const TextStyle(color: Colors.white)),
         trailing: IconButton(
-          icon: Icon(Icons.comment),
+          icon: const Icon(Icons.comment),
           onPressed: () {
             _showCommentsDialog(context, messageId);
           },
@@ -111,7 +110,7 @@ class _CommentsDialogState extends State<CommentsDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -127,14 +126,15 @@ class _CommentsDialogState extends State<CommentsDialog> {
                 },
               ),
             ),
-            SizedBox(
+            const SizedBox(
                 height:
                     16), // Ajouter un espace entre la liste de commentaires et le champ de texte
             TextField(
               controller: _commentController,
-              decoration: InputDecoration(labelText: 'Ajouter un commentaire'),
+              decoration:
+                  const InputDecoration(labelText: 'Ajouter un commentaire'),
             ),
-            SizedBox(
+            const SizedBox(
                 height:
                     16), // Ajouter un espace entre le champ de texte et les boutons
             Row(
@@ -146,15 +146,16 @@ class _CommentsDialogState extends State<CommentsDialog> {
                         .clear(); // Effacer le champ de commentaire après l'ajout
                     _loadComments(); // Rafraîchir les commentaires après ajout
                   },
-                  child: Text('Ajouter'),
+                  child: const Text('Ajouter'),
                 ),
-                SizedBox(width: 16), // Ajouter un espace entre les boutons
+                const SizedBox(
+                    width: 16), // Ajouter un espace entre les boutons
                 ElevatedButton(
                   onPressed: () {
                     Navigator.of(context)
                         .pop(); // Fermer la fenêtre des commentaires
                   },
-                  child: Text('Fermer'),
+                  child: const Text('Fermer'),
                 ),
               ],
             ),

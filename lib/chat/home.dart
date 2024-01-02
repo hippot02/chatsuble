@@ -72,7 +72,7 @@ class HomePageContent extends StatefulWidget {
 }
 
 class _HomePageContentState extends State<HomePageContent> {
-  refresh() {
+  Future<void> refresh() async {
     setState(() {});
   }
 
@@ -90,53 +90,57 @@ class _HomePageContentState extends State<HomePageContent> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          children: [
-            Expanded(
-              child: FutureBuilder<List<Map<String, dynamic>>>(
-                future: _getMessages(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return Text('Erreur: ${snapshot.error}');
-                  } else {
-                    final List<Map<String, dynamic>> messages = snapshot.data!;
-                    final filteredMessages =
-                        widget.selectedTheme == 'Tous les thèmes'
-                            ? messages
-                            : messages
-                                .where((message) =>
-                                    message['theme'] == widget.selectedTheme)
-                                .toList();
+      body: RefreshIndicator(
+        onRefresh: refresh,
+        child: Center(
+          child: Column(
+            children: [
+              Expanded(
+                child: FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _getMessages(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Erreur: ${snapshot.error}');
+                    } else {
+                      final List<Map<String, dynamic>> messages =
+                          snapshot.data!;
+                      final filteredMessages =
+                          widget.selectedTheme == 'Tous les thèmes'
+                              ? messages
+                              : messages
+                                  .where((message) =>
+                                      message['theme'] == widget.selectedTheme)
+                                  .toList();
 
-                    return ListView.builder(
-                      itemCount: filteredMessages.length,
-                      itemBuilder: (context, index) {
-                        final Map<String, dynamic> data =
-                            filteredMessages[index];
-                        final String messageText = data['text'] ?? '';
-                        final String messageTheme = data['theme'] ?? '';
-                        final DateTime messageTime =
-                            (data['timestamp'] as Timestamp).toDate();
+                      return ListView.builder(
+                        itemCount: filteredMessages.length,
+                        itemBuilder: (context, index) {
+                          final Map<String, dynamic> data =
+                              filteredMessages[index];
+                          final String messageText = data['text'] ?? '';
+                          final String messageTheme = data['theme'] ?? '';
+                          final DateTime messageTime =
+                              (data['timestamp'] as Timestamp).toDate();
 
-                        final formattedDate =
-                            DateFormat('dd/MM/yyyy HH:mm').format(messageTime);
+                          final formattedDate = DateFormat('dd/MM/yyyy HH:mm')
+                              .format(messageTime);
 
-                        return MyListTile(
-                          theme: messageTheme,
-                          text: messageText,
-                          date: formattedDate,
-                          messageId: data['messageId'],
-                        );
-                      },
-                    );
-                  }
-                },
+                          return MyListTile(
+                            theme: messageTheme,
+                            text: messageText,
+                            date: formattedDate,
+                            messageId: data['messageId'],
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: StatefulDialogButton(
