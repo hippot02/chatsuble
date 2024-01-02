@@ -4,6 +4,7 @@ import 'package:chatsuble/chat/widgets/distance_calculator.dart';
 import 'package:chatsuble/chat/widgets/filter/_filter_dialog.dart';
 import 'package:chatsuble/chat/widgets/filter/filter_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:chatsuble/profile/profile_page.dart';
 import 'package:geolocator/geolocator.dart';
@@ -149,7 +150,8 @@ class HomePageContent extends StatelessWidget {
       });
 
       Position userLocation = await _getUserLocation();
-      //double userDistance = await _getUserDistance();
+      double userDistance = await _getUserDistance();
+      print(userDistance);
 
       messages = messages.where((message) {
         if (message.containsKey('latitude') &&
@@ -196,5 +198,32 @@ class HomePageContent extends StatelessWidget {
         headingAccuracy: 0,
       );
     }
+  }
+
+  Future<double> _getUserDistance() async {
+    // Récupérez l'utilisateur actuellement connecté
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Obtenez l'ID de l'utilisateur connecté
+      String userId = user.uid;
+
+      // Utilisez l'ID de l'utilisateur pour lire la distance du document utilisateur
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userSnapshot.exists) {
+        // Accédez au champ "distance" du document utilisateur et renvoyez la valeur
+        dynamic distance = userSnapshot['distance'];
+        return distance.toDouble();
+      } else {
+        print('L\'utilisateur avec l\'ID $userId n\'existe pas.');
+        return 0.0; // Ou une valeur par défaut
+      }
+    }
+
+    return 0.0; // Ou une valeur par défaut
   }
 }
