@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
 
 class StatefulDialogButton extends StatefulWidget {
-  const StatefulDialogButton({super.key});
+  final Function() notifyParent;
+  const StatefulDialogButton({super.key, required this.notifyParent});
 
   @override
   State<StatefulDialogButton> createState() => _StatefulDialogButtonState();
@@ -88,6 +89,7 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
         'longitude': userPosition.longitude,
       });
       print('Message ajouté avec succès à Firestore!');
+      widget.notifyParent();
       Navigator.of(context)
           .pop(true); // Ferme la fenêtre de dialogue avec une valeur true
     } catch (e) {

@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomePageContent extends StatelessWidget {
+class HomePageContent extends StatefulWidget {
   final String selectedTheme;
   final Function(String) onThemeChanged;
 
@@ -69,6 +69,15 @@ class HomePageContent extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<HomePageContent> createState() => _HomePageContentState();
+}
+
+class _HomePageContentState extends State<HomePageContent> {
+  refresh() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -76,7 +85,8 @@ class HomePageContent extends StatelessWidget {
         actions: [
           FilterButton(
             onPressed: () {
-              FilterDialog.show(context, selectedTheme, onThemeChanged);
+              FilterDialog.show(
+                  context, widget.selectedTheme, widget.onThemeChanged);
             },
           ),
         ],
@@ -94,12 +104,13 @@ class HomePageContent extends StatelessWidget {
                     return Text('Erreur: ${snapshot.error}');
                   } else {
                     final List<Map<String, dynamic>> messages = snapshot.data!;
-                    final filteredMessages = selectedTheme == 'Tous les thèmes'
-                        ? messages
-                        : messages
-                            .where(
-                                (message) => message['theme'] == selectedTheme)
-                            .toList();
+                    final filteredMessages =
+                        widget.selectedTheme == 'Tous les thèmes'
+                            ? messages
+                            : messages
+                                .where((message) =>
+                                    message['theme'] == widget.selectedTheme)
+                                .toList();
 
                     return ListView.builder(
                       itemCount: filteredMessages.length,
@@ -128,7 +139,9 @@ class HomePageContent extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: const StatefulDialogButton(),
+      floatingActionButton: StatefulDialogButton(
+        notifyParent: refresh,
+      ),
     );
   }
 
