@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'login_page.dart';
 
 class AuthPage extends StatefulWidget {
+  const AuthPage({super.key});
+
   @override
   _AuthPageState createState() => _AuthPageState();
 }
@@ -53,7 +55,7 @@ class _AuthPageState extends State<AuthPage> {
       }
 
       // Vérifier si le mot de passe répond aux critères
-      if (_passwordController.text.length < 8 ||
+      if (_passwordController.text.length <= 8 ||
           !_containsUppercase(_passwordController.text) ||
           !_containsSpecialCharacter(_passwordController.text) ||
           !_containsNumber(_passwordController.text)) {
@@ -61,7 +63,7 @@ class _AuthPageState extends State<AuthPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-                'Mot de passe invalide. Assurez-vous qu\'il a au moins 8 caractères, une majuscule et un caractère spécial.'),
+                'Mot de passe invalide. Assurez-vous qu\'il a au moins 8 caractères, une majuscule, un chiffre et un caractère spécial.'),
             duration: Duration(seconds: 5),
           ),
         );
@@ -84,7 +86,7 @@ class _AuthPageState extends State<AuthPage> {
       // Navigation vers la page de connexion après une inscription réussie
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => LoginPage(),
+          builder: (context) => const LoginPage(),
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -116,7 +118,7 @@ class _AuthPageState extends State<AuthPage> {
   void _goToLoginPage() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => LoginPage(),
+        builder: (context) => const LoginPage(),
       ),
     );
   }
@@ -130,52 +132,56 @@ class _AuthPageState extends State<AuthPage> {
         title: const Text('Inscription'),
       ),
       // Corps de la page contenant les champs de saisie de l'utilisateur et les boutons
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Champ de texte pour saisir l'e-mail
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'E-mail'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16.0),
-            // Champ de texte pour saisir le mot de passe
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Mot de passe',
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    // Inverse l'état d'obscuration du mot de passe lors du clic sur le bouton
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                  icon: Icon(
-                    // Utilise une icône différente selon l'état d'obscuration
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Champ de texte pour saisir l'e-mail
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'E-mail'),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16.0),
+              // Champ de texte pour saisir le mot de passe
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Mot de passe',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      // Inverse l'état d'obscuration du mot de passe lors du clic sur le bouton
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                    icon: Icon(
+                      // Utilise une icône différente selon l'état d'obscuration
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
                   ),
                 ),
+                obscureText:
+                    _obscurePassword, // Mot de passe masqué en fonction de l'état
               ),
-              obscureText:
-                  _obscurePassword, // Mot de passe masqué en fonction de l'état
-            ),
-            const SizedBox(height: 32.0),
-            // Bouton élevé pour déclencher l'enregistrement
-            ElevatedButton(
-              onPressed: _register,
-              child: const Text("S'inscrire"),
-            ),
-            const SizedBox(height: 16.0),
-            // Bouton de texte pour accéder à la page de connexion
-            TextButton(
-              onPressed: _goToLoginPage,
-              child: const Text('Déjà un compte ? Se connecter'),
-            ),
-          ],
+              const SizedBox(height: 32.0),
+              // Bouton élevé pour déclencher l'enregistrement
+              ElevatedButton(
+                onPressed: _register,
+                child: const Text("S'inscrire"),
+              ),
+              const SizedBox(height: 16.0),
+              // Bouton de texte pour accéder à la page de connexion
+              TextButton(
+                onPressed: _goToLoginPage,
+                child: const Text('Déjà un compte ? Se connecter'),
+              ),
+            ],
+          ),
         ),
       ),
     );
