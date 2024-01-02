@@ -1,3 +1,4 @@
+import 'package:chatsuble/chat/_message_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
@@ -53,28 +54,6 @@ class _StatefulDialogButtonState extends State<StatefulDialogButton> {
   void dispose() {
     _messageController.dispose();
     super.dispose();
-  }
-
-  Future<Position> getUserLocation() async {
-    try {
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-    } catch (e) {
-      print("Erreur lors de l'obtention de la position : $e");
-      return Position(
-        latitude: 0,
-        longitude: 0,
-        accuracy: 0,
-        altitude: 0,
-        heading: 0,
-        speed: 0,
-        speedAccuracy: 0,
-        timestamp: DateTime.now(),
-        altitudeAccuracy: 0,
-        headingAccuracy: 0,
-      );
-    }
   }
 
   void addMessage() async {
