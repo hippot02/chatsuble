@@ -74,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
     // Redirection vers la page d'inscription
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (context) => AuthPage(),
+        builder: (context) => const AuthPage(),
       ),
     );
   }
@@ -88,52 +88,56 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text('Connexion'),
       ),
       // Corps de la page avec des champs de saisie d'e-mail et de mot de passe, et des boutons d'action
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Champ de texte pour saisir l'e-mail
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16.0), // Espacement vertical
-            // Champ de texte pour saisir le mot de passe
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Mot de passe',
-                suffixIcon: IconButton(
-                  onPressed: () {
-                    // Inverse l'état d'obscuration du mot de passe lors du clic sur le bouton
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
-                  },
-                  icon: Icon(
-                    // Utilise une icône différente selon l'état d'obscuration
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Champ de texte pour saisir l'e-mail
+              TextField(
+                controller: _emailController,
+                decoration: const InputDecoration(labelText: 'Email'),
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16.0), // Espacement vertical
+              // Champ de texte pour saisir le mot de passe
+              TextField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Mot de passe',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      // Inverse l'état d'obscuration du mot de passe lors du clic sur le bouton
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                    icon: Icon(
+                      // Utilise une icône différente selon l'état d'obscuration
+                      _obscurePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off,
+                    ),
                   ),
                 ),
+                obscureText:
+                    _obscurePassword, // Mot de passe masqué en fonction de l'état
               ),
-              obscureText:
-                  _obscurePassword, // Mot de passe masqué en fonction de l'état
-            ),
-            const SizedBox(height: 32.0), // Espacement vertical
-            // Bouton élevé pour déclencher la connexion
-            ElevatedButton(
-              onPressed: _login,
-              child: const Text('Se connecter'),
-            ),
-            const SizedBox(height: 16.0), // Espacement vertical
-            // Bouton de texte pour accéder à la page d'inscription
-            TextButton(
-              onPressed: _goToRegistration,
-              child: const Text('Pas de compte ? S\'inscrire'),
-            ),
-          ],
+              const SizedBox(height: 32.0), // Espacement vertical
+              // Bouton élevé pour déclencher la connexion
+              ElevatedButton(
+                onPressed: _login,
+                child: const Text('Se connecter'),
+              ),
+              const SizedBox(height: 16.0), // Espacement vertical
+              // Bouton de texte pour accéder à la page d'inscription
+              TextButton(
+                onPressed: _goToRegistration,
+                child: const Text('Pas de compte ? S\'inscrire'),
+              ),
+            ],
+          ),
         ),
       ),
     );
